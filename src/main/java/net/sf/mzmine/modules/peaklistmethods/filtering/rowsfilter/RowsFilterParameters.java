@@ -28,6 +28,7 @@ import net.sf.mzmine.parameters.dialogs.ParameterSetupDialog;
 import net.sf.mzmine.parameters.impl.SimpleParameterSet;
 import net.sf.mzmine.parameters.parametertypes.BooleanParameter;
 import net.sf.mzmine.parameters.parametertypes.ComboParameter;
+import net.sf.mzmine.parameters.parametertypes.DoubleParameter;
 import net.sf.mzmine.parameters.parametertypes.IntegerParameter;
 import net.sf.mzmine.parameters.parametertypes.OptionalParameter;
 import net.sf.mzmine.parameters.parametertypes.StringParameter;
@@ -41,15 +42,18 @@ import com.google.common.collect.Range;
 
 public class RowsFilterParameters extends SimpleParameterSet {
 
+    static final String[] removeRowChoices = {
+            "Keep rows that match all criteria",
+            "Remove rows that match all criteria" };
+
     public static final PeakListsParameter PEAK_LISTS = new PeakListsParameter();
 
     public static final StringParameter SUFFIX = new StringParameter(
             "Name suffix", "Suffix to be added to peak list name", "filtered");
 
-    public static final OptionalParameter<IntegerParameter> MIN_PEAK_COUNT = new OptionalParameter<>(
-            new IntegerParameter("Minimum peaks in a row",
-                    "Minimum number of peak detections required per row", 1, 0,
-                    null));
+    public static final OptionalParameter<DoubleParameter> MIN_PEAK_COUNT = new OptionalParameter<>(
+            new DoubleParameter("Minimum peaks in a row",
+                    "Minimum number of peak detections required per row.\nValues <1 will be interpreted as a %-value of the total # samples in the peak list. The value will be rounded down to the nearest whole number."));
 
     public static final OptionalParameter<IntegerParameter> MIN_ISOTOPE_PATTERN_COUNT = new OptionalParameter<>(
             new IntegerParameter("Minimum peaks in an isotope pattern",
@@ -64,8 +68,14 @@ public class RowsFilterParameters extends SimpleParameterSet {
     public static final OptionalParameter<DoubleRangeParameter> PEAK_DURATION = new OptionalParameter<>(
             new DoubleRangeParameter("Peak duration range",
                     "Permissible range of (average) peak durations per row",
-                    MZmineCore.getConfiguration().getRTFormat(), Range.closed(
-                            0.0, 10.0)));
+                    MZmineCore.getConfiguration().getRTFormat(),
+                    Range.closed(0.0, 10.0)));
+   
+    public static final OptionalParameter<DoubleRangeParameter> FWHM = new OptionalParameter<>(
+            new DoubleRangeParameter("Chromatographic FWHM",
+                    "Permissible range of chromatographic FWHM per row",
+                    MZmineCore.getConfiguration().getRTFormat(),
+                    Range.closed(0.0, 1.0)));
 
     public static final ComboParameter<Object> GROUPSPARAMETER = new ComboParameter<Object>(
             "Parameter", "Paremeter defining the group of each sample.",
@@ -75,23 +85,33 @@ public class RowsFilterParameters extends SimpleParameterSet {
             "Only identified?", "Select to filter only identified compounds");
 
     public static final OptionalParameter<StringParameter> IDENTITY_TEXT = new OptionalParameter<>(
-            new StringParameter(
-                    "Text in identity",
+            new StringParameter("Text in identity",
                     "Only rows that contain this text in their peak identity field will be retained."));
 
     public static final OptionalParameter<StringParameter> COMMENT_TEXT = new OptionalParameter<>(
             new StringParameter("Text in comment",
                     "Only rows that contain this text in their comment field will be retained."));
 
+    public static final ComboParameter<String> REMOVE_ROW = new ComboParameter<String>(
+            "Keep or remove rows",
+            "If selected, rows will be removed based on criteria instead of kept",
+            removeRowChoices);
+
     public static final BooleanParameter AUTO_REMOVE = new BooleanParameter(
             "Remove source peak list after filtering",
             "If checked, the original peak list will be removed leaving only the filtered version");
+    public static final BooleanParameter MS2_Filter = new BooleanParameter(
+            "Keep only peaks with MS2 scan (GNPS)",
+            "If checked, the rows that don't contain MS2 scan will be removed.");
+    public static final BooleanParameter Reset_ID = new BooleanParameter(
+             "Reset the peak number ID",
+             "If checked, the row number of original peak list will be reset.");
 
     public RowsFilterParameters() {
         super(new Parameter[] { PEAK_LISTS, SUFFIX, MIN_PEAK_COUNT,
-                MIN_ISOTOPE_PATTERN_COUNT, MZ_RANGE, RT_RANGE, PEAK_DURATION,
-                GROUPSPARAMETER, HAS_IDENTITIES, IDENTITY_TEXT,
-                COMMENT_TEXT, AUTO_REMOVE });
+                MIN_ISOTOPE_PATTERN_COUNT, MZ_RANGE, RT_RANGE, PEAK_DURATION, FWHM,
+                GROUPSPARAMETER, HAS_IDENTITIES, IDENTITY_TEXT, COMMENT_TEXT,
+                REMOVE_ROW, MS2_Filter,Reset_ID,AUTO_REMOVE });
     }
 
     @Override

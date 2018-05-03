@@ -182,6 +182,7 @@ public final class MZmineCore {
 		SwingUtilities.invokeAndWait(desktopInit);
 	    } catch (Exception e) {
 		logger.log(Level.SEVERE, "Could not initialize GUI", e);
+		e.printStackTrace();
 		System.exit(1);
 	    }
 
@@ -201,8 +202,8 @@ public final class MZmineCore {
 	}
 
 	// if we have GUI, show it now
-	if (desktop.getMainWindow() != null) {
-
+	if (desktop.getMainWindow() != null && !(desktop instanceof HeadLessDesktop))
+	{
 	    // update the size and position of the main window
 	    ParameterSet paramSet = configuration.getPreferences();
 	    WindowSettingsParameter settings = paramSet
@@ -223,7 +224,7 @@ public final class MZmineCore {
 	    nvcThread.start();
 
 	    // Tracker
-	    GoogleAnalyticsTracker GAT = new GoogleAnalyticsTracker("GUI Loaded", "/JAVA/Main/GUI");
+	    GoogleAnalyticsTracker GAT = new GoogleAnalyticsTracker("MZmine Loaded (GUI mode)", "/JAVA/Main/GUI");
 	    Thread gatThread = new Thread(GAT);
 	    gatThread.setPriority(Thread.MIN_PRIORITY);
 	    gatThread.start();
@@ -236,10 +237,10 @@ public final class MZmineCore {
 
 	// if arguments were specified (= running without GUI), run the batch
 	// mode
-	if (args.length > 0) {
+	if (args.length > 0 && desktop instanceof HeadLessDesktop) {
 
 	    // Tracker
-	    GoogleAnalyticsTracker GAT = new GoogleAnalyticsTracker("GUI Loaded", "/JAVA/Main/GUI");
+	    GoogleAnalyticsTracker GAT = new GoogleAnalyticsTracker("MZmine Loaded (Headless mode)", "/JAVA/Main/GUI");
 	    Thread gatThread = new Thread(GAT);
 	    gatThread.setPriority(Thread.MIN_PRIORITY);
 	    gatThread.start();
@@ -264,7 +265,10 @@ public final class MZmineCore {
 	return taskController;
     }
 
-    @Nonnull
+
+	// Removed @Nonnull
+	// Function returns null when called from logger (line 94 of this file)
+	//@Nonnull
     public static Desktop getDesktop() {
 	return desktop;
     }
@@ -302,7 +306,7 @@ public final class MZmineCore {
 	try {
 	    ClassLoader myClassLoader = MZmineCore.class.getClassLoader();
 	    InputStream inStream = myClassLoader
-		    .getResourceAsStream("META-INF/maven/io.github.mzmine/mzmine/pom.properties");
+		    .getResourceAsStream("META-INF/maven/io.github.mzmine/mzmine2/pom.properties");
 	    if (inStream == null)
 		return "0.0";
 	    Properties properties = new Properties();

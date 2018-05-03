@@ -58,20 +58,21 @@ public class ContinuousRenderer extends XYLineAndShapeRenderer {
 	this.isTransparent = isTransparent;
 
 	// Set painting color
-	setBasePaint(color);
-	setBaseFillPaint(color);
+	setDefaultPaint(color);
+	setDefaultFillPaint(color);
 	setUseFillPaint(true);
 
 	// Set shape properties
-	setBaseShape(dataPointsShape);
-	setBaseShapesFilled(true);
-	setBaseShapesVisible(false);
+	setDefaultShape(dataPointsShape);
+	setDefaultShapesFilled(true);
+	setDefaultShapesVisible(false);
 	setDrawOutlines(false);
 
 	// Set the tooltip generator
 	SpectraToolTipGenerator tooltipGenerator = new SpectraToolTipGenerator();
-	setBaseToolTipGenerator(tooltipGenerator);
+	setDefaultToolTipGenerator(tooltipGenerator);
 
+	setDrawSeriesLineAsPath(true);
     }
 
     public void drawItem(Graphics2D g2, XYItemRendererState state,
